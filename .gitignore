@@ -1,0 +1,7 @@
+.RData
+.Rhistory
+*.jl
+*.ipynb
+*.csv
+*.png
+Feedback/*
