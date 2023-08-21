@@ -34,7 +34,7 @@ if(DEBUG){
   methods < c('mb', 'glasso') 
   selectors <- c('stars', 'ric', 'ebic')
   seeds <- c(123, 42, 198, 984, 214)
-  graphs <- c("hub", "cluster", "band", "scale-free")
+  graphs <- c("hub", "cluster", "band", "scale-free", "MB")
 }
 
 
@@ -81,6 +81,7 @@ for(seed in seeds){
               graph = graph,
             )
           } else {
+            stop("TODO")
             gen_data <- NA  # TODO
           }
           
@@ -94,7 +95,9 @@ for(seed in seeds){
           )})
           res_best <- peakRAM({best <- huge.select(model, criterion = selector)})
           
-          metrics <- get_metrics(best$refit, gen_data$theta)
+          metrics <- get_metrics(
+            as(best$refit, "dgCMatrix"),
+            as(gen_data$theta, "dsCMatrix"))
           
           # Track
           tracking[counter, ]$seed <- seed
