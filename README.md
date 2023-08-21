@@ -1,7 +1,7 @@
 # Network Learning and Sparse Estimation 
 
 Repository for all code related to the seminar. This work focuses on the neighborhood selection
-approach by Meinshausen and Bühlmann (2006) in comparison to GLASSO by [Friedman et al. (2008)](https://pubmed.ncbi.nlm.nih.gov/18079126/).
+approach by [Meinshausen and Bühlmann (2006)](https://arxiv.org/abs/math/0608017) in comparison to GLASSO by [Friedman et al. (2008)](https://arxiv.org/abs/0708.3517).
 
 Using the `huge` package, the methods are applied to different graph-topologies and compared in the seminar paper.
 
