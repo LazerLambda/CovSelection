@@ -36,7 +36,7 @@ mb_gen <- function(n, d, trnct = TRUE) {
   } else {
     df$selection <- as.logical(rbinom(ln, 1, df$prob))
   }
-  return(df)
+  return(list(data = df))
   
   # TODO: Select nodes that have more than 4 (set var) neighbors
   # TODO: Remove edges randomly from set of non-conforming nodes

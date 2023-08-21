@@ -13,6 +13,7 @@ library(dplyr)
 library(logger)
 library(huge)
 library(peakRAM)
+library(tidyr)
 
 source("./utils.R")
 
@@ -22,8 +23,8 @@ DEBUG <- T
 
 if(DEBUG){
   n <- 1000
-  dimensions <- seq(100, 500, by = 100)
-  methods < c('mb')
+  dimensions <- seq(100, 200, by = 100)
+  methods <- c('mb')
   selectors <- c('stars', 'ebic')
   seeds <- c(123)
   graphs <- c("random")
@@ -80,7 +81,7 @@ for(seed in seeds){
               graph = graph,
             )
           } else {
-            gen_data <- list(data = NA) # TODO
+            gen_data <- NA  # TODO
           }
           
           # TODO: Track time for one estimation?

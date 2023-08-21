@@ -1,7 +1,7 @@
 library(checkmate)
 
 
-lw <- function(arg) return(length(which(arg)))
+lw <- function(arg) return(length(Matrix::which(arg)))
 
 #' `get_metrics` Function
 #
