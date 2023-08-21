@@ -23,7 +23,7 @@ DEBUG <- T
 
 if(DEBUG){
   n <- 1000
-  dimensions <- seq(100, 200, by = 100)
+  dimensions <- seq(10, 20, by = 10)
   methods <- c('mb')
   selectors <- c('stars', 'ebic')
   seeds <- c(123)
@@ -70,7 +70,7 @@ for(seed in seeds){
         for(selector in selectors){
           log_info('Current: Seed: {seed}, Dimension: {d}, Method: {method}, Selector: {selector}.')
           if(method == 'mb' & selector == 'ebic') {
-            
+            log_info("Incompatible combination. Proceeding.")
             counter <- counter + 1
             next
           }
