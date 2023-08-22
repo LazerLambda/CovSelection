@@ -24,7 +24,7 @@ DEBUG <- T
 
 if(DEBUG){
   n <- 1000
-  dimensions <- seq(5, 10, by = 5)
+  dimensions <- seq(10, 20, by = 10)
   methods <- c('mb')
   selectors <- c('stars')
   seeds <- c(123)
@@ -32,7 +32,7 @@ if(DEBUG){
   lambdas <- rev(seq(0.01, 0.03, by = 0.01))
 } else {
   n <- 1000
-  dimensions <- seq(100, 1000, by = 100)
+  dimensions <- c(100, 250, 500, 750, 1000, 2000, 3000)
   methods < c('mb', 'glasso') 
   selectors <- c('stars', 'ebic')
   seeds <- c(123, 42, 198, 984, 214)
@@ -104,7 +104,6 @@ for(seed in seeds){
           metrics <- get_metrics(
             as(best$refit, "dgCMatrix"),
             as(gen_data$theta, "dsCMatrix"))
-          print(metrics)
           
           # Track
           tracking[counter, ]$seed <- seed
@@ -124,6 +123,10 @@ for(seed in seeds){
           tracking[counter, ]$hamming_dist <- metrics$hamming_dist
           tracking[counter, ]$best <- 0
           
+          if (file.exists("tmp.csv")) {
+            file.remove("tmp.csv")
+          }
+          write.csv(tracking, "tmp.csv", )
           
           counter <- counter + 1
         }
@@ -133,5 +136,6 @@ for(seed in seeds){
 }
 # tracking <- drop_na(tracking)
 write.csv(tracking, paste("tracking", Sys.time(), ".csv"))
+unlink("tmp.csv")
 
 
