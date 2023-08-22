@@ -6,7 +6,11 @@
 #
 # Philipp Koch, 2023
 
+set.seed(123)
+
 setwd("/home/philko/Documents/Uni/SoSe23/SparseAndNetwork")
+
+source("./MB_DGF.R")
 
 library(huge)
 
@@ -27,5 +31,15 @@ dev.off()
 
 png("scale_free_fig.png")
 data <- huge.generator(n = 100, p = 500, graph = 'scale-free')
+plot(data)
+dev.off()
+
+png("m_and_b_fig.png")
+data <- mb_gen(n = 100, d = 500)
+plot(data)
+dev.off()
+
+png("random_fig.png")
+data <- huge.generator(n = 100, p = 500, graph = 'random')
 plot(data)
 dev.off()

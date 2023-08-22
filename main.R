@@ -16,6 +16,7 @@ library(peakRAM)
 library(tidyr)
 
 source("./utils.R")
+source("./MB_DGF.R")
 
 # Set Parameter
 
