@@ -1,3 +1,12 @@
+# Script including helper functions for the main experiment.
+# 
+# Neighborhood Selection as Covariance Selection - Revisiting Meinshausen and
+# Bühlmann's Approach
+#
+# For the seminar "Network Learning and Sparse Estimation"
+#
+# Philipp Koch, 2023
+
 library(checkmate)
 
 
@@ -37,28 +46,4 @@ get_metrics <- function(predicted, actual) {
     )
 }
 
-
-# TEST
-run_test <- function() {
-  m <- as(matrix(c(1,0,0,0), nrow = 2, ncol = 2), "dsCMatrix")
-  m_hat <- as(matrix(c(1,1,1,0), nrow = 2, ncol = 2), "dgCMatrix")
-  res <- get_metrics(predicted = m_hat, actual = m)
-  checkmate::assert(round(res$precision, 2) == 0.33)
-  checkmate::assert(res$recall == 1)
-  checkmate::assert(res$f1 == 0.5)
-  
-  m_hat <- as(matrix(c(1,0,0,0), nrow = 2, ncol = 2), "dgCMatrix")
-  m <- as(matrix(c(1,1,1,0), nrow = 2, ncol = 2), "dsCMatrix")
-  res <- get_metrics(predicted = m_hat, actual = m)
-  checkmate::assert(res$precision == 1)
-  checkmate::assert(round(res$recall, 2) == 0.33)
-  checkmate::assert(res$f1 == 0.5)
-  
-  m_hat <- as(matrix(c(1,0,1,0), nrow = 2, ncol = 2), "dgCMatrix")
-  m <- as(matrix(c(1,0,0,1), nrow = 2, ncol = 2), "dsCMatrix")
-  res <- get_metrics(predicted = m_hat, actual = m)
-  checkmate::assert(res$precision == 0.5)
-  checkmate::assert(res$recall == 0.5)
-  checkmate::assert(res$f1 == 0.5)
-}
 
