@@ -27,7 +27,7 @@ if(DEBUG){
   methods <- c('mb')
   selectors <- c('stars', 'ebic')
   seeds <- c(123)
-  graphs <- c("random")
+  graphs <- c("MB")
 } else {
   n <- 1000
   dimensions <- seq(100, 1000, by = 100)
@@ -81,8 +81,10 @@ for(seed in seeds){
               graph = graph,
             )
           } else {
-            stop("TODO")
-            gen_data <- NA  # TODO
+            gen_data <- mb_gen(
+              n = n,
+              d = d
+            )
           }
           
           # TODO: Track time for one estimation?

@@ -1,54 +1,23 @@
 
 library(MASS)
 
-#' `mb_gen` Function
+
+#' Helper Function to check Whether Nodes fulfill Conditions.
 #' 
-#' Reproduce data-generating process from Meinshausen and Bühlmann (2006).
-#' @param n number of observations.
-#' @param d number of variables.
-#' @param trnct flag to keep column of selection.
-#' @return list object including the generated data.
-mb_gen <- function(n, d, trnct = TRUE) {
-  # Sample from two-dimensional std. uniform dist.
-  init_set <- data.frame(x = runif(d), y = runif(d))
-  m <- as.matrix(dist(init_set))
-
-  # Build set of all edges
-  ln <- floor(nrow(m) * ncol(m) / 2) - ncol(m) / 2
-  df <- data.frame(
-    n1 = rep(NA, ln),
-    n2 = rep(NA, ln),
-    dist = rep(NA, ln))
-  counter <- 1
-  for(i in seq_len(nrow(m) - 1)) {
-    for(j in seq_len(i)) {
-      df$n1[counter] <- i + 1
-      df$n2[counter] <- j
-      df$dist[counter] <- m[i + 1, j]
-      counter <- counter + 1
-    }
-  }
-
-  # Get sample probability for edges
-  df$prob <- dnorm(df$dist / sqrt(d))
-  # Keep all nodes that have been chosen
-  if(trnct){
-    df <- df[as.logical(rbinom(ln, 1, df$prob)), ]
-  } else {
-    df$selection <- as.logical(rbinom(ln, 1, df$prob))
-  }
-  return(list(data = df))
-  
-  # TODO: Select nodes that have more than 4 (set var) neighbors
-  # TODO: Remove edges randomly from set of non-conforming nodes
-  # TODO: Repeat until condition of max neighbors is met.
-}
-
-
+#' @param axis Axis for traversal.
+#' @param m Matrix on which conditions must be fulfilled (lower triangular,
+#' logical matrix).
+#' @param upper Upper bound for check.
+#' @returns Logical vector for rows/columns.
 edge_cond_met <- function(axis, m, upper) {
   (apply(m, axis, sum, na.rm=TRUE) > upper)
 }
 
+
+#' Helper Function to Randomly Set an Entry to Zero.
+#' 
+#' @param e Element (vector, row/column of matrix).
+#' @returns Updated vector where an element is set to FALSE. 
 set_edge_false <- function(e) {
   i <- sample(which(e), 1)
   e[i] <- FALSE
@@ -105,7 +74,7 @@ test_equalize_edges <- function(n = 100, upper = 4) {
   # Check upper triangle NA
 }
 
-#' `mb_gen_m` Function
+#' `mb_gen` Function
 #' 
 #' Reproduce data-generating process from Meinshausen and Bühlmann (2006).
 #' 
@@ -115,7 +84,7 @@ test_equalize_edges <- function(n = 100, upper = 4) {
 #' @param d number of variables.
 #' @param trnct flag to keep column of selection.
 #' @return list object including the generated data.
-mb_gen_m <- function(n, d, upper = 4) {
+mb_gen <- function(n, d, upper = 4) {
   # Sample from two-dim std. uniform distribution
   init_set <- data.frame(x = runif(d), y = runif(d))
   
@@ -134,21 +103,41 @@ mb_gen_m <- function(n, d, upper = 4) {
   # Set max edges for each node to `upper` (4).
   m <- equalize_edges(m, upper = upper)
   
+  # Create symmetric matrix from lower triangle.
+  m[upper.tri(m)] <- t(m)[upper.tri(m)]
+  
+  # Save adjacency matrix.
+  theta <- m
+  diag(theta) <- rep(0, d)
+  theta <- as(theta, "dsCMatrix")
+  
+  # Create sigma.
   m <- 1 * m
-  theta <- duplicate(m, shallow = FALSE)
-  m[upper.tri(m)] <- t(m[lower.tri(m)])
   m <- 0.245 * m
   diag(m) <- rep(1, d)
   sigma <- solve(m) # TODO: Cholesky ?
+  
+  # Sample data.
   data <- MASS::mvrnorm(n, rep(0, d), sigma)
+
+  # Scale to unit-variance.
+  data <- apply(
+    data,
+    2,
+    function(e) {
+      vr <- var(e)
+      sapply(
+        e,
+        function(o) {
+          o / sqrt(vr)
+        })
+      }) 
   return(list(
     data = data,
-    sigmahat = m,
     sigma = sigma,
-    theta = NA
+    theta = theta
   ))
 }
-
 
 
 run_test <- function(){
