@@ -25,16 +25,16 @@ DEBUG <- T
 if(DEBUG){
   n <- 1000
   dimensions <- seq(5, 10, by = 5)
-  methods <- c('mb', 'glasso')
-  selectors <- c('stars', 'ebic')
-  seeds <- c(123, 198, 984, 214)
-  graphs <- c("hub", "cluster", "band", "scale-free", "MB")
+  methods <- c('mb')
+  selectors <- c('stars')
+  seeds <- c(123)
+  graphs <- c("hub", "MB")
   lambdas <- rev(seq(0.01, 0.03, by = 0.01))
 } else {
   n <- 1000
   dimensions <- seq(100, 1000, by = 100)
   methods < c('mb', 'glasso') 
-  selectors <- c('stars', 'ric', 'ebic')
+  selectors <- c('stars', 'ebic')
   seeds <- c(123, 42, 198, 984, 214)
   graphs <- c("hub", "cluster", "band", "scale-free", "MB")
   lambdas <- rev(seq(0.05, 0.5, by = 0.05))
@@ -95,7 +95,7 @@ for(seed in seeds){
           
           res_model <- peakRAM({model <- huge(
             x = gen_data$data,
-            lambda = lambdas,
+            #lambda = lambdas,
             method = method,
             sym = 'and'
           )})
@@ -104,6 +104,7 @@ for(seed in seeds){
           metrics <- get_metrics(
             as(best$refit, "dgCMatrix"),
             as(gen_data$theta, "dsCMatrix"))
+          print(metrics)
           
           # Track
           tracking[counter, ]$seed <- seed
@@ -130,7 +131,7 @@ for(seed in seeds){
     }
   }
 }
-tracking <- drop_na(tracking)
+# tracking <- drop_na(tracking)
 write.csv(tracking, paste("tracking", Sys.time(), ".csv"))
 
 

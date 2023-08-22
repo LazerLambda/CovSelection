@@ -32,7 +32,10 @@ get_metrics <- function(predicted, actual) {
   
   log_info("tp: {tp}, fp: {fp}, fn: {fn}")
   
-  precision <- tp / (tp + fp)
+  precision <- ifelse(
+    test = (tp + fp) == 0, 
+    yes = 0,
+    no = tp / (tp + fp))
   recall <- tp / (tp + fn)
   f1 <- 2 * precision * recall / (precision + recall)
   hamming_dist <- sum(actual_mask != predicted_mask)
