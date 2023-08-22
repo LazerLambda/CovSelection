@@ -1,5 +1,16 @@
+# Implementation of the Data-Generating-Process (DGP) of Meinshausen and
+# Bühlmann (2006).
+# 
+# Neighborhood Selection as Covariance Selection - Revisiting Meinshausen and
+# Bühlmann's Approach
+#
+# For the seminar "Network Learning and Sparse Estimation"
+#
+# Philipp Koch, 2023
+
 
 library(MASS)
+
 
 
 #' Helper Function to check Whether Nodes fulfill Conditions.
@@ -14,6 +25,7 @@ edge_cond_met <- function(axis, m, upper) {
 }
 
 
+
 #' Helper Function to Randomly Set an Entry to Zero.
 #' 
 #' @param e Element (vector, row/column of matrix).
@@ -23,6 +35,7 @@ set_edge_false <- function(e) {
   e[i] <- FALSE
   e
 }
+
 
 
 #' Function to reduce edges for each node to max four.
@@ -64,21 +77,11 @@ equalize_edges <- function(m, upper = 4) {
   return(m)
 }
 
-test_equalize_edges <- function(n = 100, upper = 4) {
-  m <- matrix(sample(c(TRUE,FALSE), n^2, TRUE), nrow = n, ncol = n)
-  m[upper.tri(m, diag = TRUE)] <- NA
-  m <- equalize_edges(m, upper = upper)
-  checkmate::assert(!(TRUE %in% (apply(m, 1, sum, na.rm = T) > upper)))
-  checkmate::assert(!(TRUE %in% (apply(m, 2, sum, na.rm = T) > upper)))
-  
-  # Check upper triangle NA
-}
+
 
 #' `mb_gen` Function
 #' 
 #' Reproduce data-generating process from Meinshausen and Bühlmann (2006).
-#' 
-#' TODO: Explain in detail!
 #' 
 #' @param n number of observations.
 #' @param d number of variables.
@@ -131,15 +134,17 @@ mb_gen <- function(n, d, upper = 4) {
         function(o) {
           o / sqrt(vr)
         })
-      }) 
-  return(list(
+      })
+  # Get empirical cov-matrix
+  sigmahat <- cor(data)
+
+  # Organize return to align with `huge`
+  ret_list <- list(
     data = data,
     sigma = sigma,
+    sigmahat = sigmahat,
     theta = theta
-  ))
-}
-
-
-run_test <- function(){
-  mb_gen(100, 500, T)
+  )
+  class(ret_list) <- "sim"
+  return(ret_list)
 }

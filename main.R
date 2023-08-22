@@ -24,11 +24,12 @@ DEBUG <- T
 
 if(DEBUG){
   n <- 1000
-  dimensions <- seq(10, 20, by = 10)
-  methods <- c('mb')
+  dimensions <- seq(5, 10, by = 5)
+  methods <- c('mb', 'glasso')
   selectors <- c('stars', 'ebic')
-  seeds <- c(123)
-  graphs <- c("MB")
+  seeds <- c(123, 198, 984, 214)
+  graphs <- c("hub", "cluster", "band", "scale-free", "MB")
+  lambdas <- rev(seq(0.01, 0.03, by = 0.01))
 } else {
   n <- 1000
   dimensions <- seq(100, 1000, by = 100)
@@ -36,11 +37,12 @@ if(DEBUG){
   selectors <- c('stars', 'ric', 'ebic')
   seeds <- c(123, 42, 198, 984, 214)
   graphs <- c("hub", "cluster", "band", "scale-free", "MB")
+  lambdas <- rev(seq(0.05, 0.5, by = 0.05))
 }
 
 
 # Set-up Tracking DF
-df_len <- length(dimensions) * length(methods) * length(selectors) * length(seeds)
+df_len <- length(dimensions) * length(methods) * length(selectors) * length(seeds) * length(graphs)
 tracking <- data.frame(
   seed = rep(NA, df_len),
   graph = rep(NA, df_len),
@@ -69,7 +71,8 @@ for(seed in seeds){
     for(d in dimensions) {
       for(method in methods) {
         for(selector in selectors){
-          log_info('Current: Seed: {seed}, Dimension: {d}, Method: {method}, Selector: {selector}.')
+          log_info('\'-------> {counter}/{df_len}')
+          log_info('Current: Seed: {seed}, Dimension: {d}, Method: {method}, Selector: {selector}, Graph: {graph}.')
           if(method == 'mb' & selector == 'ebic') {
             log_info("Incompatible combination. Proceeding.")
             counter <- counter + 1
@@ -92,7 +95,7 @@ for(seed in seeds){
           
           res_model <- peakRAM({model <- huge(
             x = gen_data$data,
-            lambda = rev(seq(0.01, 0.03, by = 0.01)),
+            lambda = lambdas,
             method = method,
             sym = 'and'
           )})
@@ -128,5 +131,6 @@ for(seed in seeds){
   }
 }
 tracking <- drop_na(tracking)
+write.csv(tracking, paste("tracking", Sys.time(), ".csv"))
 
 
