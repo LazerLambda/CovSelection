@@ -12,6 +12,7 @@ Using the `huge` package, the methods are applied to different graph-topologies 
 ├── utils.R                     <- Script entailing different helper functions to compute the metrics.
 ├── MB_DGF.R                    <- Includes a function that implements the data-generating process from Meinshausen and Bühlmann (2006).
 ├── main.R                      <- Main file for running the predictions and evaluations.
+├── tests.R                     <- Tests for `MB_DGF.R`.
 ├── LICENSE                     <- License file (MIT).
 ├── .gitignore                  <- Blacklisting files for version control.
 └── README.md                   <- This file.
