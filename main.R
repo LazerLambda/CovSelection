@@ -7,7 +7,16 @@
 #
 # Philipp Koch, 2023
 
-setwd("/home/philko/Documents/Uni/SoSe23/SparseAndNetwork")
+install.packages('Metrics')
+install.packages('testthat')
+install.packages('checkmate')
+install.packages('logger')
+install.packages('huge')
+install.packages('peakRAM')
+install.packages('MASS')
+
+
+setwd("/dss/dsshome1/01/ru38kiz2/enroot/CovSelection")
 
 library(dplyr)
 library(logger)
@@ -20,24 +29,22 @@ source("./MB_DGF.R")
 
 # Set Parameter
 
-DEBUG <- T
+DEBUG <- F
 
 if(DEBUG){
-  n <- 1000
-  dimensions <- seq(10, 20, by = 10)
-  methods <- c('mb')
-  selectors <- c('stars')
+  n <- 100
+  dimensions <- c(100)
+  methods <- c('glasso')
+  selectors <- c('stars', 'ebic')
   seeds <- c(123)
-  graphs <- c("hub", "MB")
-  lambdas <- rev(seq(0.01, 0.03, by = 0.01))
+  graphs <- c("band")
 } else {
-  n <- 1000
-  dimensions <- c(100, 250, 500, 750, 1000, 2000, 3000)
-  methods < c('mb', 'glasso') 
+  n <- 100
+  dimensions <- c(100, 250, 500, 750) #, 1000) #, 2000)#, 3000)
+  methods <- c('glasso', 'mb') 
   selectors <- c('stars', 'ebic')
   seeds <- c(123, 42, 198, 984, 214)
-  graphs <- c("hub", "cluster", "band", "scale-free", "MB")
-  lambdas <- rev(seq(0.05, 0.5, by = 0.05))
+  graphs <-c("hub", "cluster", "band", "scale-free", "MB")
 }
 
 
@@ -61,6 +68,7 @@ tracking <- data.frame(
   hamming_dist = rep(NA, df_len),
   best = rep(NA, df_len)
 )
+
 counter <- 1
 
 # Loop to Produce different Data Scenarios
@@ -93,13 +101,28 @@ for(seed in seeds){
           
           # TODO: Track time for one estimation?
           
-          res_model <- peakRAM({model <- huge(
+          # Model Computation
+          start_time <- Sys.time()
+          model <- huge(
             x = gen_data$data,
-            #lambda = lambdas,
             method = method,
-            sym = 'and'
-          )})
+            sym = 'or')
+          
+          end_time <- Sys.time()
+          model_time <- end_time - start_time
+          
+          # res_model <- peakRAM({})
           res_best <- peakRAM({best <- huge.select(model, criterion = selector)})
+          
+          # Model Selection
+          start_time <- Sys.time()
+          model <- huge(
+            x = gen_data$data,
+            method = method,
+            sym = 'and')
+          
+          end_time <- Sys.time()
+          model_sel_time <- end_time - start_time
           
           metrics <- get_metrics(
             as(best$refit, "dgCMatrix"),
@@ -111,12 +134,12 @@ for(seed in seeds){
           tracking[counter, ]$method <- method
           tracking[counter, ]$dim <- d
           tracking[counter, ]$selector <- selector
-          tracking[counter, ]$elapsed_time_model <- res_model$Elapsed_Time_sec
-          tracking[counter, ]$total_ram_model <- res_model$Total_RAM_Used_MiB
-          tracking[counter, ]$peak_ram_model <- res_model$Peak_RAM_Used_MiB
-          tracking[counter, ]$elapsed_time_best <- res_best$Elapsed_Time_sec
-          tracking[counter, ]$total_ram_best <- res_best$Total_RAM_Used_MiB
-          tracking[counter, ]$peak_ram_best <- res_best$Peak_RAM_Used_MiB
+          tracking[counter, ]$elapsed_time_model <- model_time # res_model$Elapsed_Time_sec
+          # tracking[counter, ]$total_ram_model <- res_model$Total_RAM_Used_MiB
+          # tracking[counter, ]$peak_ram_model <- res_model$Peak_RAM_Used_MiB
+          tracking[counter, ]$elapsed_time_best <- model_sel_time # res_best$Elapsed_Time_sec
+          # tracking[counter, ]$total_ram_best <- res_best$Total_RAM_Used_MiB
+          # tracking[counter, ]$peak_ram_best <- res_best$Peak_RAM_Used_MiB
           tracking[counter, ]$f1 <- metrics$f1
           tracking[counter, ]$precision <- metrics$precision
           tracking[counter, ]$recall <- metrics$recall
