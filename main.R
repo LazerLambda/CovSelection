@@ -7,16 +7,16 @@
 #
 # Philipp Koch, 2023
 
-install.packages('Metrics')
-install.packages('testthat')
-install.packages('checkmate')
-install.packages('logger')
-install.packages('huge')
-install.packages('peakRAM')
-install.packages('MASS')
+# install.packages('Metrics')
+# install.packages('testthat')
+# install.packages('checkmate')
+# install.packages('logger')
+# install.packages('huge')
+# install.packages('peakRAM')
+# install.packages('MASS')
 
 
-setwd("/dss/dsshome1/01/ru38kiz2/enroot/CovSelection")
+setwd("/home/philko/Documents/CovSelection")
 
 library(dplyr)
 library(logger)
@@ -29,27 +29,30 @@ source("./MB_DGF.R")
 
 # Set Parameter
 
-DEBUG <- F
+DEBUG <- T
 
 if(DEBUG){
-  n <- 100
-  dimensions <- c(100)
-  methods <- c('glasso')
-  selectors <- c('stars', 'ebic')
-  seeds <- c(123)
-  graphs <- c("band")
+  hyperparams <- list(
+    n = 100,
+    dimensions = c(750, 100, 150, 200, 250, 300),
+    methods = c('glasso'),
+    selectors = c('stars'),
+    seeds = c(123),
+    graphs = c("cluster")
+  )
 } else {
   n <- 100
-  dimensions <- c(100, 250, 500, 750) #, 1000) #, 2000)#, 3000)
+  dimensions <- c(100, 250, 500, 750, 1000) #, 2000)#, 3000)
   methods <- c('glasso', 'mb') 
   selectors <- c('stars', 'ebic')
-  seeds <- c(123, 42, 198, 984, 214)
+  # seeds <- c(123, 42, 198, 984, 214)
+  seeds <- c(42, 198, 984) #, 214)
   graphs <-c("hub", "cluster", "band", "scale-free", "MB")
 }
 
 
 # Set-up Tracking DF
-df_len <- length(dimensions) * length(methods) * length(selectors) * length(seeds) * length(graphs)
+df_len <- length(hyperparams$dimensions) * length(hyperparams$methods) * length(hyperparams$selectors) * length(hyperparams$seeds) * length(hyperparams$graphs)
 tracking <- data.frame(
   seed = rep(NA, df_len),
   graph = rep(NA, df_len),
@@ -73,12 +76,12 @@ counter <- 1
 
 # Loop to Produce different Data Scenarios
 graph <- 'random'
-for(seed in seeds){
+for(seed in hyperparams$seeds){
   set.seed(seed)
-  for(graph in graphs){
-    for(d in dimensions) {
-      for(method in methods) {
-        for(selector in selectors){
+  for(graph in hyperparams$graphs){
+    for(d in hyperparams$dimensions) {
+      for(method in hyperparams$methods) {
+        for(selector in hyperparams$selectors){
           log_info('\'-------> {counter}/{df_len}')
           log_info('Current: Seed: {seed}, Dimension: {d}, Method: {method}, Selector: {selector}, Graph: {graph}.')
           if(method == 'mb' & selector == 'ebic') {
@@ -88,13 +91,14 @@ for(seed in seeds){
           }
           if(graph !=  "MB") {
             gen_data <- huge.generator(
-              n = n,
+              n = hyperparams$n,
               d = d,
+              g = ceiling(d / 20),
               graph = graph,
             )
           } else {
             gen_data <- mb_gen(
-              n = n,
+              n = hyperparams$n,
               d = d
             )
           }
@@ -107,26 +111,24 @@ for(seed in seeds){
             x = gen_data$data,
             method = method,
             sym = 'or')
-          
           end_time <- Sys.time()
           model_time <- end_time - start_time
+          gc(reset = TRUE, full = TRUE)
           
           # res_model <- peakRAM({})
-          res_best <- peakRAM({best <- huge.select(model, criterion = selector)})
+          # res_best <- peakRAM({})
           
           # Model Selection
           start_time <- Sys.time()
-          model <- huge(
-            x = gen_data$data,
-            method = method,
-            sym = 'and')
-          
+          best <- huge.select(model, criterion = selector)
           end_time <- Sys.time()
           model_sel_time <- end_time - start_time
+          gc(reset = TRUE, full = TRUE)
           
           metrics <- get_metrics(
             as(best$refit, "dgCMatrix"),
             as(gen_data$theta, "dsCMatrix"))
+          gc(reset = TRUE, full = TRUE)
           
           # Track
           tracking[counter, ]$seed <- seed
@@ -152,6 +154,16 @@ for(seed in seeds){
           write.csv(tracking, "tmp.csv", )
           
           counter <- counter + 1
+          gc(reset = TRUE, full = TRUE)
+          # rm(gen_data, model, best, metrics)
+          # env_list <- ls()
+          # rm(list = env_list[!(env_list %in% c(
+          #   'hyperparams', 'counter',
+          #   'tracking', 'df_len',
+          #   'seed', 'graph',
+          #   'd', 'method',
+          #   'selector'))])
+          # gc(reset = TRUE)
         }
       }
     }

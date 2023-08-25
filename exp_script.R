@@ -16,7 +16,6 @@ method <- args[4]
 selector <- args[5]
 tracking_file <- args[6]
 seed <- args[7]
-set.seed(seed)
 
 
 if(method != 'mb' | selector != 'ebic') {
@@ -39,11 +38,11 @@ if(method != 'mb' | selector != 'ebic') {
     hamming_dist = rep(NA, df_len),
     best = rep(NA, df_len)
   )
-  print(dims)
 
   counter <- 1
 
   for (d in dims){
+    set.seed(seed)
     if(graph !=  "MB") {
       gen_data <- huge.generator(
         n = n,

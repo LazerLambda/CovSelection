@@ -20,7 +20,7 @@ args = parser.parse_args()
 
 target_file: str = args.csv_out
 n: str = "100"
-dims: str = "100,250,500,750,1000,1500"
+dims: str = "100,250,500,750,1000"
 graphs: list = ["hub", "cluster", "band", "scale-free", "MB"]
 methods: list = ["glasso", "mb"]
 selectors: list = ['stars', 'ebic']
