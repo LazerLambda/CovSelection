@@ -5,7 +5,7 @@ library(peakRAM)
 source("./utils.R")
 source("./MB_DGF.R")
 
-options(echo=TRUE) # if you want see commands in output file
+options(echo=TRUE)
 args <- commandArgs(trailingOnly = TRUE)
 
 # 
@@ -98,12 +98,12 @@ if(method != 'mb' | selector != 'ebic') {
   }
 
   # tracker <- read.csv(tracking_file)
-  if (!file.exists("test.csv")) {
-    write.csv(tracking, "test.csv", row.names = FALSE)
+  if (!file.exists(tracking_file)) {
+    write.csv(tracking, tracking_file, row.names = FALSE)
   } else {
-    curr <- read.csv("test.csv")
+    curr <- read.csv(tracking_file)
     curr <- rbind(curr, tracking)
-    write.csv(curr, "test.csv", row.names = FALSE) 
+    write.csv(curr, tracking_file, row.names = FALSE) 
   }
 
 }
