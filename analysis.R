@@ -209,7 +209,7 @@ for (g in graphs) {
 
 
 # GET TABLES FOR EACH GRAPH
-# data_grouped[data_grouped$graph == "MB", ][c("name", "dim", "f1_mean", "precision_mean", "recall_mean")]
+
 print_table <- function(df, graph, cols){
   with_mean <- unname(sapply(cols, function(e) paste(e, "mean", sep = "_")))
   cols <- c("name", "dim", with_mean)
