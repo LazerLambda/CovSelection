@@ -16,7 +16,7 @@
 # install.packages('MASS')
 
 
-setwd("/home/philko/Documents/CovSelection")
+setwd("/home/philko/Documents/Uni/SoSe23/SparseAndNetwork")
 
 library(dplyr)
 library(logger)
@@ -154,6 +154,7 @@ for(seed in hyperparams$seeds){
           write.csv(tracking, "tmp.csv", )
           
           counter <- counter + 1
+          rm(best, model, metrics)
           gc(reset = TRUE, full = TRUE)
           # rm(gen_data, model, best, metrics)
           # env_list <- ls()

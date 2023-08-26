@@ -1,5 +1,4 @@
 
-
 ebic_corrected <- function(est,d, n, ebic.gamma = 0.5){
   if(est$method == "glasso")
   {

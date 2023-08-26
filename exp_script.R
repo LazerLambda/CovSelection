@@ -4,6 +4,7 @@ library(peakRAM)
 
 source("./utils.R")
 source("./MB_DGF.R")
+source("./ebic_adjusted.R")
 
 options(echo=TRUE)
 args <- commandArgs(trailingOnly = TRUE)
@@ -56,20 +57,50 @@ if(method != 'mb' | selector != 'ebic') {
       )
     }
     
-    # TODO: Track time for one estimation?
-    
+    # if (selector == "ebic") {
+    #   x = scale(gen_data$data)
+    #   S = cor(x)
+    #   rm(x)
+    #   gc()
+    #   lambda.max = max(max(S-diag(d)),-min(S-diag(d)))
+    #   lambda.min = 0.*lambda.max
+    #   lambda = exp(seq(log(lambda.max), log(lambda.min), length = nlambda))
+    #   lambda <- lambda[2:length(lambda)]
+    #   res_model <- peakRAM({
+    #     model <- huge(
+    #       x = gen_data$data,
+    #       method = method,
+    #       lambda = lambda,
+    #       sym = 'or')
+    #     end_time <- Sys.time()
+    #   }) 
+    # } else {
+    #   # Model Computation
+    #   res_model <- peakRAM({
+    #     model <- huge(
+    #       x = gen_data$data,
+    #       method = method,
+    #       sym = 'or')
+    #     end_time <- Sys.time()
+    #   }) 
+    # }
+
     # Model Computation
     res_model <- peakRAM({
       model <- huge(
         x = gen_data$data,
         method = method,
         sym = 'or')
-      end_time <- Sys.time()
-    })
+      end_time <- Sys.time()}) 
     
     # Model Selection
     res_best <- peakRAM({
-      best <- huge.select(model, criterion = selector)
+      # best <- huge.select(model, criterion = selector)
+      if (selector == "ebic"){
+        best <- ebic_corrected(model,d, n)
+      } else {
+        best <- huge.select(model, criterion = selector)
+      }
     })
     
     metrics <- get_metrics(
