@@ -13,7 +13,7 @@ library(dplyr)
 library(ggplot2)
 
 setwd("/home/philko/Documents/Uni/SoSe23/SparseAndNetwork")
-data <- read.csv('./data/DATA.csv')
+data <- read.csv('./data/data.csv')
 data$name <- apply( data[ , c('method', 'selector')] , 1 , paste , collapse = "-" )
 data <- subset(data, select = -c(method, selector))
 
@@ -54,6 +54,11 @@ for (g in graphs){
   data_tmp <- na.omit(data_tmp)
   plot1 <- ggplot(data=data_tmp, aes(x=dim, y=f1_mean, group=name)) +
     geom_line(aes(col = name)) +
+    scale_color_manual(
+      values = c(
+        "glasso-stars" = "#5D8AA8",
+        "glasso-ebic" = "#E52B50",
+        "mb-stars" = "#ED872D")) +
     geom_point() +
     ylab("F1") +
     xlab("Dimensions (p)") +
@@ -64,7 +69,12 @@ for (g in graphs){
     ggtitle("") +
     theme(legend.position = "none")
   plot2 <- ggplot(data=data_tmp, aes(x=dim, y=precision_mean, group=name)) +
-    geom_line(aes(col = name)) + 
+    geom_line(aes(col = name)) +
+    scale_color_manual(
+      values = c(
+        "glasso-stars" = "#5D8AA8",
+        "glasso-ebic" = "#E52B50",
+        "mb-stars" = "#ED872D")) +
     geom_ribbon(
       data = data_tmp,
       aes(x = dim, ymin = ci_precision_min, ymax = ci_precision_max, group = name),
@@ -75,7 +85,12 @@ for (g in graphs){
     ggtitle(get_title(g)) +
     theme(legend.position = "none")
   plot3 <- ggplot(data=data_tmp, aes(x=dim, y=recall_mean, group=name)) +
-    geom_line(aes(col = name)) + 
+    geom_line(aes(col = name)) +
+    scale_color_manual(
+      values = c(
+        "glasso-stars" = "#5D8AA8", # air force blue
+        "glasso-ebic" = "#E52B50", # amararanth
+        "mb-stars" = "#ED872D")) + # cadmium orange
     geom_ribbon(
       data = data_tmp,
       aes(x = dim, ymin = ci_recall_min, ymax = ci_recall_max, group = name),
@@ -86,13 +101,16 @@ for (g in graphs){
     ggtitle("") +
     labs(color = "Estimator (+ Selector)") +
     theme(legend.position = c(1.75, 0.2))
+    
+    
+    
   # grid.arrange(plot1, plot2, plot3, ncol = 3)
   plots[[i]] <- grid.arrange(plot1, plot2, plot3, ncol = 3)
   i <- i + 1
   #  Adapat from here https://latexcolor.com/
 }
 
-grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], plots[[5]], nrow = 5)
+# grid.arrange(plots[[1]], plots[[2]], plots[[3]], plots[[4]], plots[[5]], nrow = 5)
 # 
 # 
 # plot3 <- ggplot(data=data_tmp, aes(x=dim, y=recall_mean, group=name)) +
