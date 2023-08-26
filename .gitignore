@@ -2,7 +2,7 @@
 .Rhistory
 *.jl
 *.ipynb
-*.csv
 *.png
 Feedback/*
 figures/*
+data_raw/*
