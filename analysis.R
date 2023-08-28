@@ -44,7 +44,8 @@ data_grouped <- data %>%
       "elapsed_time_model",
       "elapsed_time_best",
       "peak_ram_model",
-      "peak_ram_best"),
+      "peak_ram_best",
+      "hamming_dist"),
     list(
       mean = mean,
       std = ~sqrt(var(.x))))
@@ -61,18 +62,29 @@ add_ci <- function(df, col) {
   return(df)
 }
 
-get_title <- function(graph_name) {
-  if (graph_name == "hub") return("Hub-Graph")
-  if (graph_name == "scale-free") return("Scale-Free-Graph")
-  if (graph_name == "cluster") return("Cluster-Graph")
-  if (graph_name == "band") return("Band-Graph")
-  if (graph_name == "MB") return("MB-DGF-Graph")
+get_title <- function(graph_name, short = F) {
+  if (graph_name == "hub" & !short) return("Hub-Graph")
+  if (graph_name == "scale-free" & !short) return("Scale-Free-Graph")
+  if (graph_name == "cluster" & !short) return("Cluster-Graph")
+  if (graph_name == "band" & !short) return("Band-Graph")
+  if (graph_name == "MB" & !short) return("MB-DGF-Graph")
+  
+  if (graph_name == "hub" & short) return("Hub")
+  if (graph_name == "scale-free" & short) return("Scale-Free")
+  if (graph_name == "cluster" & short) return("Cluster")
+  if (graph_name == "band" & short) return("Band")
+  if (graph_name == "MB" & short) return("MB-DGF")
 }
 
 plot_models <- function(df, col_name) {
-  plot <- ggplot(data=df, aes_string(x="dim", y=paste(col_name, "mean", sep="_"), group="name")) +
+  plot <- ggplot(data=df, aes_string(x="dim", y=paste(col_name, "mean", sep="_"), group="name", fill = "name") ) +
     geom_line(aes(col = name)) +
     scale_color_manual(
+      values = c(
+        "glasso-stars" = "#5D8AA8", # air force blue
+        "glasso-ebic" = "#E52B50", # amararanth
+        "mb-stars" = "#ED872D")) + # cadmium orange
+    scale_fill_manual(
       values = c(
         "glasso-stars" = "#5D8AA8", # air force blue
         "glasso-ebic" = "#E52B50", # amararanth
@@ -86,8 +98,10 @@ plot_models <- function(df, col_name) {
         x = "dim",
         ymin = paste("ci", col_name, "min", sep="_"),
         ymax = paste("ci", col_name, "max", sep="_")),
+      linetype = 3,
       alpha = 0.3) +
     theme(legend.position = "none") +
+    xlim(0, 1000) +
     { if (col_name %in% c("f1", "precision", "recall")) {
       coord_cartesian(ylim = c(0, 1))
     } else {
@@ -151,7 +165,7 @@ for (g in graphs) {
   plot1 <- plot_models(data_tmp, "elapsed_time_model") +
     ylab("Time (in Seconds)") +
     ggtitle("Model Estimation")
-  plot2 <- plot_models(data_tmp, "elapsed_time_best") +
+  plot2 <- plot_models(data_tmp[!(data_tmp$name == "glasso-ebic"), ], "elapsed_time_best") +
     ggtitle("Model Selection")
 
   plt <- grid.arrange(
@@ -159,7 +173,7 @@ for (g in graphs) {
     plot2,
     ncol = 2,
     top = get_title(g),
-    bottom = "Dimensions (p)")
+    bottom = "Dimension (p)")
   ggsave(
     plt,
     file=paste("./figures/", g, "_time", ".pdf", sep = ""),
@@ -169,6 +183,30 @@ for (g in graphs) {
   plots_time[[i]] <- plt
   i <- i + 1
 }
+
+
+plots_time_mod <- list()
+plots_time_bst <- list()
+i <- 1
+for (g in graphs) {
+  data_tmp <- data_grouped %>%
+    filter(graph == g)
+  data_tmp <- na.omit(data_tmp)
+  plot1 <- plot_models(data_tmp, "elapsed_time_model") + ggtitle(get_title(g, T)) + coord_cartesian(ylim = c(0, 80))
+  plot2 <- plot_models(data_tmp[!(data_tmp$name == "glasso-ebic"), ], "elapsed_time_best") + coord_cartesian(ylim = c(0, 1500))
+  
+  plots_time_mod[[i]] <- plot1
+  plots_time_bst[[i]] <- plot2
+  i <- i + 1
+}
+
+plt_time <- do.call("grid.arrange", c(plots_time_mod, plots_time_bst, nrow=2, ncol=5, top="Elapsed Time for Model Estimation and Selection", bottom="Dimension (p)", left="Elapsed Time (in Seconds)"))
+ggsave(
+  plt_time,
+  file=paste("./figures/", "elapsed_time.pdf", sep = ""),
+  width = 25,
+  height = 12.5,
+  units = "cm")
 
 
 
@@ -186,7 +224,7 @@ for (g in graphs) {
   plot1 <- plot_models(data_tmp, "peak_ram_model") +
     ylab("Memory (in MiB)") +
     ggtitle("Model Estimation")
-  plot2 <- plot_models(data_tmp, "peak_ram_best") +
+  plot2 <- plot_models(data_tmp[!(data_tmp$name == "glasso-ebic"), ], "peak_ram_best") +
     ggtitle("Model Selection")
 
 
@@ -195,7 +233,7 @@ for (g in graphs) {
     plot2,
     ncol = 2,
     top = get_title(g),
-    bottom = "Dimensions (p)")
+    bottom = "Dimension (p)")
   ggsave(
     plt,
     file=paste("./figures/", g, "_memory", ".pdf", sep = ""),
@@ -205,6 +243,29 @@ for (g in graphs) {
   plots_ram[[i]] <- plt
   i <- i + 1
 }
+
+plots_mem_mod <- list()
+plots_mem_bst <- list()
+i <- 1
+for (g in graphs) {
+  data_tmp <- data_grouped %>%
+    filter(graph == g)
+  data_tmp <- na.omit(data_tmp)
+  plot1 <- plot_models(data_tmp, "peak_ram_model") + ggtitle(get_title(g, T))
+  plot2 <- plot_models(data_tmp[!(data_tmp$name == "glasso-ebic"), ], "peak_ram_best")
+  
+  plots_mem_mod[[i]] <- plot1
+  plots_mem_bst[[i]] <- plot2
+  i <- i + 1
+}
+
+plt_time <- do.call("grid.arrange", c(plots_mem_mod, plots_mem_bst, nrow=2, ncol=5, top="Memory Requirements for Model Estimation and Selection", bottom="Dimension (p)", left="Memory (in MiB)"))
+ggsave(
+  plt_time,
+  file=paste("./figures/", "memory.pdf", sep = ""),
+  width = 22,
+  height = 10,
+  units = "cm")
 
 
 
@@ -218,4 +279,13 @@ print_table <- function(df, graph, cols){
     function(n) {
       data_grouped[
         data_grouped$graph == graph & data_grouped$name == n, ][cols]})
+}
+
+to_table_row <- function(df, col) {
+  names_df <- sapply(df, function(e) unique(e$name))
+  dims <- c(col, t(df[[1]]$dim))
+  x <- t(sapply(df, function(e) e[[paste0(col, "_mean")]]))
+  X <- rbind(dims, unname(cbind(nm, round(x, 4))))
+  written <-apply(X, 1, paste, collapse = " & ")
+  cat(paste(written, collapse = "\\\\ \\hline "))
 }
