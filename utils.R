@@ -1,12 +1,3 @@
-# Script including helper functions for the main experiment.
-# 
-# Neighborhood Selection as Covariance Selection - Revisiting Meinshausen and
-# Bühlmann's Approach
-#
-# For the seminar "Network Learning and Sparse Estimation"
-#
-# Philipp Koch, 2023
-
 library(checkmate)
 
 

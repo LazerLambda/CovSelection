@@ -1,12 +1,3 @@
-# Script for the report
-# 
-# Neighborhood Selection as Covariance Selection - Revisiting Meinshausen and
-# Bühlmann's Approach
-#
-# For the seminar "Network Learning and Sparse Estimation"
-#
-# Philipp Koch, 2023
-
 # install.packages('Metrics')
 # install.packages('testthat')
 # install.packages('checkmate')

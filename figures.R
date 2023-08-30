@@ -1,11 +1,3 @@
-# Script for generating figures of the seminar-paper.
-#
-# Seminar: Network Learning and Sparse Estimation
-# Institute for Statistics
-# LMU Munich
-#
-# Philipp Koch, 2023
-
 set.seed(123)
 
 setwd("/home/philko/Documents/Uni/SoSe23/SparseAndNetwork")

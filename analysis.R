@@ -1,14 +1,3 @@
-# Script for Analysis of the obtained data.
-# 
-# Colors for labels taken from https://latexcolor.com/.
-#
-# Neighborhood Selection as Covariance Selection - Revisiting Meinshausen and
-# Bühlmann's Approach.
-#
-# For the seminar "Network Learning and Sparse Estimation"
-#
-# Philipp Koch, 2023
-
 library(data.table)
 library(gridExtra)
 library(dplyr)
@@ -67,13 +56,13 @@ get_title <- function(graph_name, short = F) {
   if (graph_name == "scale-free" & !short) return("Scale-Free-Graph")
   if (graph_name == "cluster" & !short) return("Cluster-Graph")
   if (graph_name == "band" & !short) return("Band-Graph")
-  if (graph_name == "MB" & !short) return("MB-DGF-Graph")
+  if (graph_name == "MB" & !short) return("MB-DGP-Graph")
   
   if (graph_name == "hub" & short) return("Hub")
   if (graph_name == "scale-free" & short) return("Scale-Free")
   if (graph_name == "cluster" & short) return("Cluster")
   if (graph_name == "band" & short) return("Band")
-  if (graph_name == "MB" & short) return("MB-DGF")
+  if (graph_name == "MB" & short) return("MB-DGP")
 }
 
 plot_models <- function(df, col_name) {
@@ -281,11 +270,17 @@ print_table <- function(df, graph, cols){
         data_grouped$graph == graph & data_grouped$name == n, ][cols]})
 }
 
+get_metric_name <- function(metric_string) {
+  if (metric_string == "f1") return("\\textbf{F1}")
+  if (metric_string == "precision") return("\\textbf{Precision}")
+  if (metric_string == "recall") return("\\textbf{Recall}")
+}
+
 to_table_row <- function(df, col) {
   names_df <- sapply(df, function(e) unique(e$name))
-  dims <- c(col, t(df[[1]]$dim))
+  dims <- c(get_metric_name(col), t(df[[1]]$dim))
   x <- t(sapply(df, function(e) e[[paste0(col, "_mean")]]))
-  X <- rbind(dims, unname(cbind(nm, round(x, 4))))
+  X <- rbind(dims, unname(cbind(names_df, round(x, 4))))
   written <-apply(X, 1, paste, collapse = " & ")
   cat(paste(written, collapse = "\\\\ \\hline "))
 }

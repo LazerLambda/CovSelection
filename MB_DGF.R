@@ -1,14 +1,3 @@
-# Implementation of the Data-Generating-Process (DGP) of Meinshausen and
-# Bühlmann (2006).
-# 
-# Neighborhood Selection as Covariance Selection - Revisiting Meinshausen and
-# Bühlmann's Approach
-#
-# For the seminar "Network Learning and Sparse Estimation"
-#
-# Philipp Koch, 2023
-
-
 library(MASS)
 
 
