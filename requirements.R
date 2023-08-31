@@ -1,0 +1,7 @@
+install.packages('Metrics')
+install.packages('testthat')
+install.packages('checkmate')
+install.packages('logger')
+install.packages('huge')
+install.packages('peakRAM')
+install.packages('MASS')
