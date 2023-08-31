@@ -18,5 +18,6 @@ Using the `huge` package, the methods are applied to different graph-topologies 
 ├── main.py                     <- Main file for running the experiment.
 ├── MB_DGF.R                    <- Includes a function that implements the data-generating process from Meinshausen and Bühlmann (2006).
 ├── README.md                   <- This file.
+├── requirements.R              <- required packages.
 └── tests.R                     <- Tests for `MB_DGF.R`.
 ```
