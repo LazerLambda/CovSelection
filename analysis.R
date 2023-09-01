@@ -178,7 +178,7 @@ for (g in graphs) {
   plot1 <- plot_models(data_tmp, "elapsed_time_model", data_uns) +
     ylab("Time (in Seconds)") +
     ggtitle("Model Estimation")
-  plot2 <- plot_models(data_tmp[!(data_tmp$name == "glasso-ebic"), ], "elapsed_time_best", data_uns) +
+  plot2 <- plot_models(data_tmp[!(data_tmp$name == "glasso-ebic"), ], "elapsed_time_best", data_uns[!(data_uns$name == "glasso-ebic"), ]) +
     ggtitle("Model Selection")
 
   plt <- grid.arrange(
@@ -209,7 +209,7 @@ for (g in graphs) {
     filter(graph == g)
   data_uns <- na.omit(data_uns)
   plot1 <- plot_models(data_tmp, "elapsed_time_model", data_uns) + ggtitle(get_title(g, T)) + coord_cartesian(ylim = c(0, 80))
-  plot2 <- plot_models(data_tmp[!(data_tmp$name == "glasso-ebic"), ], "elapsed_time_best", data_uns) + coord_cartesian(ylim = c(0, 1500)) + ggtitle("")
+  plot2 <- plot_models(data_tmp[!(data_tmp$name == "glasso-ebic"), ], "elapsed_time_best", data_uns[!(data_uns$name == "glasso-ebic"), ]) + coord_cartesian(ylim = c(0, 1500)) + ggtitle("")
   
   plots_time_mod[[i]] <- plot1
   plots_time_bst[[i]] <- plot2
