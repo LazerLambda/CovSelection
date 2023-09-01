@@ -29,7 +29,7 @@ get_metrics <- function(predicted, actual) {
     no = tp / (tp + fp))
   recall <- tp / (tp + fn)
   f1 <- 2 * precision * recall / (precision + recall)
-  hamming_dist <- sum(actual_mask[upper.tri(actual_mask)] != predicted_mask[upper.tri(predicted_mask)])
+  hamming_dist <- sum(actual_mask != predicted_mask)
   return(
     list(
       precision = precision,
